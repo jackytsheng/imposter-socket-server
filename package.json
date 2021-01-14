@@ -1,0 +1,29 @@
+{
+  "name": "imposter-socket-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server",
+    "dev": "nodemon server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jackytsheng/imposter-socket-server.git"
+  },
+  "author": "jackytsheng",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jackytsheng/imposter-socket-server/issues"
+  },
+  "homepage": "https://github.com/jackytsheng/imposter-socket-server#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "moment": "^2.29.1",
+    "socket.io": "^3.0.5"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.7"
+  }
+}
