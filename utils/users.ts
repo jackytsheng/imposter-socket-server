@@ -1,18 +1,24 @@
+import { Role } from './GameProperty';
 import { User } from './../interfaces/User';
 let users: User[] = [];
 
-const userJoin=(id,username,room):User=>{
-  const user: User = { id, username, room } as User;
+const userJoin = (
+  id: string,
+  username: string,
+  room: number,
+  role: Role = Role.Player): User => {
+  const user: User = { id, username, room, role } as User;
 
-  console.log("A user has join room")
+  console.log("A user has joined room");
   console.log("Socket ID", id);
   console.log("Username", username);
   console.log("room", room);
+  console.log("role", role);
   console.log("--------------------");
 
   users.push(user);
   return user;
-}
+};
 const getCurrentUser=(id:string):User=>{
   return users.find((user: User) => user.id === id);
 }
