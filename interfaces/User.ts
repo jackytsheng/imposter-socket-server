@@ -4,4 +4,6 @@ export interface User {
   room: number;
   username: string;
   role: Role;
+  seat:number;
+  isInGame:boolean;
 }

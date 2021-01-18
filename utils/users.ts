@@ -1,5 +1,7 @@
 import { Role } from './GameProperty';
 import { User } from './../interfaces/User';
+import { userJoinRoom, roomChangeGame, userLeaveRoom } from '../utils/room';
+
 let users: User[] = [];
 
 const userJoin = (
@@ -15,7 +17,8 @@ const userJoin = (
   console.log("room", room);
   console.log("role", role);
   console.log("--------------------");
-
+  
+  userJoinRoom(user, room);
   users.push(user);
   return user;
 };
@@ -23,16 +26,14 @@ const getCurrentUser=(id:string):User=>{
   return users.find((user: User) => user.id === id);
 }
 
-const deleteUser = (id: string): void => {
+const deleteUser = (id: string,roomId:number): void => {
   users = users.filter((user: User) => user.id !== id);
+  userLeaveRoom(id,roomId);
 };
 
-const getAllUsersInRoom=(room:number):User[]=>{
-  return users.filter(user => user.room === room);
-}
+
 export {
   userJoin,
   getCurrentUser,
   deleteUser,
-  getAllUsersInRoom,
 }
