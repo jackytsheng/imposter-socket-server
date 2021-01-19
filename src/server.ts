@@ -12,7 +12,12 @@ import {
   getCurrentUser,
   deleteUser,
 } from "../utils/users";
-import { roomChangeGame, getAllUsersInRoom, changeAdmin } from "../utils/room";
+import {
+  roomChangeGame,
+  getAllUsersInRoom,
+  changeAdmin,
+  getRoomInfo,
+} from "../utils/room";
 // const path = require('path');
 
 // app.use(express.static(path.join(__dirname, "public")));
@@ -29,7 +34,6 @@ const io = socketio(server,{
       origin: "*",
     }
   });
-
 
 const isRoomEmpty=(room: number) :boolean =>  {
   console.log("checking if the room is empty")
@@ -53,10 +57,10 @@ const newUserJoinAction = (socket, username: string, room: number) => {
   });
 
   io.to(user.room).emit("userList", getAllUsersInRoom(user.room));
+  io.to(user.room).emit("roomInfo", getRoomInfo(user.room));
 };
 
 
-  
 io.on('connection',socket =>{
   
   socket.on('joinRoom', ({username,room})=>{
@@ -82,7 +86,11 @@ io.on('connection',socket =>{
     if (user) {
       deleteUser(socket.id,user.room);
       if(user.role === Role.Admin){
-        changeAdmin(user.room);
+        let newAdmin:User = changeAdmin(user.room);
+        io.to(user.room).emit("message", {
+          username: SERVER_USER,
+          message: `admin has been changed to ${newAdmin.username}`,
+        });
         io.to(user.room).emit("userList", getAllUsersInRoom(user.room));
       }
       io.to(user.room).emit("message", {
@@ -94,6 +102,7 @@ io.on('connection',socket =>{
         "userList",
         getAllUsersInRoom(user.room)
       ); 
+      io.to(user.room).emit("roomInfo", getRoomInfo(user.room));
     }
   });
  
