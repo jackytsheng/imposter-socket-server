@@ -35,11 +35,13 @@ const createRoom=(roomId:number):Room=>{
     Id: roomId,
     availableSeat: seatArray,
     totalSeatNumber: DEFAULT_SEAT_NUMBER,
-    players:[],
-    seatsList:[],
+    players: [],
+    seatsList: [],
+    gameInProgress:false,
   } as Room;
 
 }
+const isRoomInGame=(roomId:number):boolean => chooseRoom(roomId).gameInProgress
 
 const roomChangeGame=(game:Game,roomId:number)=>{
   let selectedRoom: Room = chooseRoom(roomId);
@@ -100,4 +102,5 @@ export {
   getAllUsersInRoom,
   changeAdmin,
   getRoomInfo,
+  isRoomInGame,
 };

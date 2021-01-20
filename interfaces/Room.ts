@@ -8,6 +8,7 @@ export interface Room{
   totalSeatNumber:number;
   seatsList:Seat[];
   availableSeat:number[],
+  gameInProgress:boolean,
 }
 
 export interface Seat{
