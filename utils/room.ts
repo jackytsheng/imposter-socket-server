@@ -1,3 +1,4 @@
+
 import { Game, Role } from './GameProperty';
 import { User } from './../interfaces/User';
 import { Room, Seat } from '../interfaces/Room';
@@ -61,7 +62,7 @@ const changeAdmin=(roomId:number,toUserSeat:number = null):User=>{
       };
     })
     return admin
-  }else if(selectedRoom.players.length !== 0 ){
+  }else if(selectedRoom && selectedRoom.players.length !== 0 ){
     // both seat user and player list user point to the same object
     let admin:User;
     
@@ -72,7 +73,8 @@ const changeAdmin=(roomId:number,toUserSeat:number = null):User=>{
 }
 const updateAvailableSeat=(room:Room,seatNumber:number):void=>{
   room.availableSeat.push(seatNumber)
-  room.availableSeat.sort();
+  room.availableSeat.sort((a,b)=>a - b);
+  console.log("Available Seat: ",room.availableSeat);
   room.seatsList = room.seatsList.filter(seat => seat.seatNumber !== seatNumber);
   updateRooms(room);
 }
@@ -85,8 +87,18 @@ const userLeaveRoom = (userId:string, roomId: number) => {
       emptySeatNumber = seat.seatNumber;
     }})
   updateAvailableSeat(leavedRoom, emptySeatNumber);
+  console.log("Rooms List",rooms)
+  if(chooseRoom(roomId).players.length === 0){
+    deleteRoom(roomId);
+  }
 };
 
+const deleteRoom=(roomId:number)=>{
+  console.log("----------------")
+  console.log("Deleting empty room")
+  console.log("New rooms List", rooms);
+  rooms = rooms.filter((room:Room)=>room.Id !==roomId);
+}
 const getRoomInfo = (roomId:number) : Room =>{
   return chooseRoom(roomId);
 }
@@ -94,6 +106,9 @@ const getAllUsersInRoom = (roomId: number): User[] => {
   let selectedRoom:Room = rooms.find(room => room.Id === roomId );
   return selectedRoom ? selectedRoom.players : [];
 };
+const getSeatListsInRoom = (roomId:number): Seat[]=>{
+  return chooseRoom(roomId).seatsList;
+}
 
 export {
   userJoinRoom,
@@ -103,4 +118,5 @@ export {
   changeAdmin,
   getRoomInfo,
   isRoomInGame,
+  getSeatListsInRoom,
 };

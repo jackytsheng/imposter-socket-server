@@ -1,3 +1,4 @@
+import { Seat,Room } from './../interfaces/Room';
 import { Message } from './../interfaces/Message';
 import { Game } from './../utils/GameProperty';
 import { mapGameSelectedToGame } from './../utils/mapper';
@@ -19,8 +20,8 @@ import {
   changeAdmin,
   getRoomInfo,
   isRoomInGame,
+  getSeatListsInRoom,
 } from "../utils/room";
-import { Room } from '../interfaces/Room';
 // const path = require('path');
 
 // app.use(express.static(path.join(__dirname, "public")));
@@ -63,7 +64,7 @@ const newUserJoinAction = (socket, username: string, room: number) => {
 };
 
 const startGame=(game:Game)=>{
-
+  
 }
 
 const botSay=(msg:string):Message=>{
@@ -79,18 +80,29 @@ io.on('connection',socket =>{
 
  
   socket.on("gameStart", ({ room, game }) => {
-    
-    socket.leave(room);
-    let roomWithGame = generateRoomWithGameID(room,game);
-    socket.join(roomWithGame);
-    console.log("game starts on ",roomWithGame);
-    io.to(roomWithGame).emit("message",botSay(`Game has started. Game: ${game}, Number of players: ${getRoomInfo(room).seatsList.length}`));
+
+    getAllUsersInRoom(room).forEach((user:User)=>{user.isInGame = true});
+    io.to(room).emit("userList",getAllUsersInRoom(room)); 
+    io.to(room).emit("roomInfo", getRoomInfo(room));
+
+    console.log("game starts !");
+    socket.broadcast.to(room).emit("gameStart",true);
+    io.to(room).emit("gameMessage",botSay(`Game has started. Game: ${game}, Number of players: ${getRoomInfo(room).seatsList.length}.`));
   });
   socket.on("gameMessage", (message)=>{
     const currentUser: User = getCurrentUser(socket.id);
-    const roomInfo: Room = getRoomInfo(currentUser.room);
-    let roomWithGame = generateRoomWithGameID(roomInfo.Id, roomInfo.game);
-    io.to(roomInfo.Id).to(roomWithGame).emit("message",{username:currentUser.username,message})
+   
+    let userSeatingAt:number;
+    getSeatListsInRoom(currentUser.room).forEach((seat:Seat)=>{
+      if(seat.player.id === socket.id){
+        userSeatingAt = seat.seatNumber;
+    }});
+
+    io.to(currentUser.room).emit("gameMessage", {
+      username: currentUser.username,
+      message,
+      seat: userSeatingAt,
+    });
   })
   socket.on("chatMessage", (message) => {
     const currentUser:User = getCurrentUser(socket.id);
@@ -111,7 +123,7 @@ io.on('connection',socket =>{
       deleteUser(socket.id,user.room);
       if(user.role === Role.Admin){
         let newAdmin:User = changeAdmin(user.room);
-        io.to(user.room).emit("message",botSay(`admin has been changed to ${newAdmin.username}`));
+        io.to(user.room).emit("message",botSay(`admin has been changed to ${newAdmin ? newAdmin.username:null}`));
         io.to(user.room).emit("userList", getAllUsersInRoom(user.room));
       }
       io.to(user.room).emit("message",botSay(`${user.username} has left the chat.`));
